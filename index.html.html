@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shift 1 PBJT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+:root{
+  --bg:#F4F6F8; --panel:#FFFFFF; --ink:#16202A; --muted:#5B6773; --line:#D9DFE5; --head:#E6ECF4;
+  --accent:#1F5AA6; --accent-ink:#FFFFFF; --good:#1E7A46; --good-bg:#E4F3EA; --bad:#B42318; --bad-bg:#FBE9E7;
+  --warn:#8A5A00; --warn-bg:#FFF4D6; --input:#1F3FD1;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10161C; --panel:#18212A; --ink:#E6EBF0; --muted:#98A5B2; --line:#2C3843; --head:#1F2B37;
+  --accent:#6FA3E8; --accent-ink:#0B1520; --good:#5CC98A; --good-bg:#15301F; --bad:#F2877A; --bad-bg:#3A1A17;
+  --warn:#F2C35C; --warn-bg:#352A10; --input:#8FAEFF; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#10161C; --panel:#18212A; --ink:#E6EBF0; --muted:#98A5B2; --line:#2C3843; --head:#1F2B37;
+  --accent:#6FA3E8; --accent-ink:#0B1520; --good:#5CC98A; --good-bg:#15301F; --bad:#F2877A; --bad-bg:#3A1A17;
+  --warn:#F2C35C; --warn-bg:#352A10; --input:#8FAEFF; color-scheme:dark;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding:24px 16px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-size:24px;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;font-size:14px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.controls{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px}
+@media (max-width:760px){.controls{grid-template-columns:1fr}}
+.drop{border:1.5px dashed var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--accent)}
+.drop strong{font-weight:600}
+.file-name{font-family:var(--mono);font-size:12px;color:var(--muted);word-break:break-all}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+input[type=number],input[type=text]{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%}
+input:focus-visible,button:focus-visible,.drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;font-weight:600;border-radius:6px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{padding:12px 14px}
+.stat .v{font-family:var(--mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:940px;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--head);font-size:12px;text-transform:uppercase;letter-spacing:.05em;text-align:right;font-weight:600;color:var(--muted)}
+th.l,td.l{text-align:left} td{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.l{font-family:var(--sans)} td.c,th.c{text-align:center}
+tfoot td{font-weight:700;background:var(--head);border-bottom:0}
+td input.om{width:140px;text-align:right;font-family:var(--mono);color:var(--input);padding:4px 7px}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:500}
+.chip.good{background:var(--good-bg);color:var(--good)} .chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.na{color:var(--muted)}
+.miss{color:var(--warn)}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:10px 14px;font-size:14px}
+.legend{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.legend b{color:var(--ink);font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:14px}
+.gs{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.gs-status{flex-basis:100%;margin:0;font-size:14px;min-height:1.5em}
+.gs-status.ok{color:var(--good)} .gs-status.err{color:var(--bad)}
+code{font-family:var(--mono);font-size:.92em}
+button:disabled{opacity:.6;cursor:wait}
+.del{border:0;background:none;color:var(--muted);padding:2px 6px;font-weight:400}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Bakmi Kelinci · Laporan PBJT</div>
+      <h1>Omset Shift 1 berdasarkan Shift</h1>
+      <p class="sub" id="periodLabel">Periode 1 - 19 September 2026</p>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnGs">Simpan ke Google Sheet</button>
+      <button id="btnXlsx">Unduh Excel</button>
+      <button id="btnCopy">Salin tabel</button>
+    </div>
+  </header>
+
+  <section class="panel controls">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Pilih file Ringkasan Penjualan">
+      <span class="eyebrow">1 · Ekspor Runchise</span>
+      <strong>Pilih atau tarik file Ringkasan Penjualan (.xlsx)</strong>
+      <span class="file-name" id="fileName">Contoh terisi: Ringkasan_Penjualan 1–19 Sep 2026</span>
+      <input type="file" id="file" accept=".xlsx" hidden>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span class="eyebrow">2 · Periode</span>
+      <label class="f">Judul periode<input type="text" id="periodText" value="Periode 1 - 19 September 2026"></label>
+      <div class="row2">
+        <label class="f">Hari berjalan<input type="number" id="dayNow" min="1" max="31" value="19"></label>
+        <label class="f">Hari dalam bulan<input type="number" id="dayMonth" min="28" max="31" value="30"></label>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="eyebrow">Cara hitung</span>
+      <span><b>Perkiraan PB 1</b> = Nilai Pajak dari Runchise</span>
+      <span><b>Shift 1</b> = PB 1 × 10</span>
+      <span><b>Kekurangan</b> = Omset bulan lalu − Shift 1</span>
+      <span><b>Ratio</b> = Kekurangan ÷ Omset bulan lalu</span>
+      <span><b>Sisa Target</b> = (hari bulan − hari berjalan) ÷ hari bulan</span>
+      <span><b>Selisih</b> = Sisa Target − Ratio (positif = di atas target)</span>
+    </div>
+  </section>
+
+  <div class="note" id="warn" hidden></div>
+
+  <section class="stats">
+    <div class="panel stat"><div class="eyebrow">Total Shift 1</div><div class="v" id="sShift">–</div></div>
+    <div class="panel stat"><div class="eyebrow">Omset bulan lalu</div><div class="v" id="sPrev">–</div></div>
+    <div class="panel stat"><div class="eyebrow">Ratio kekurangan</div><div class="v" id="sRatio">–</div></div>
+    <div class="panel stat"><div class="eyebrow">Outlet di atas target</div><div class="v" id="sOn">–</div></div>
+  </section>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th class="c">No</th><th class="l">Outlet</th><th>Shift 1</th><th>Perkiraan PB 1</th>
+        <th>Omset Bulan Lalu</th><th>Kekurangan</th><th>Ratio</th><th>Sisa Target</th><th>Selisih</th><th></th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+      <tfoot id="tf"></tfoot>
+    </table>
+  </div>
+
+  <section class="panel" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+    <label class="f" style="flex:1 1 220px">Tambah outlet<input type="text" id="newOutlet" placeholder="Nama persis seperti di Runchise"></label>
+    <button id="btnAdd">Tambah</button>
+    <button id="btnReset">Kembalikan daftar awal</button>
+    <p class="sub" style="flex-basis:100%;margin:0">Omset bulan lalu (teks biru) bisa diubah langsung di tabel dan tersimpan di browser ini.</p>
+  </section>
+</div>
+<div class="wrap" style="margin-top:20px">
+  <section class="panel gs">
+    <div style="flex-basis:100%"><span class="eyebrow">Google Sheet</span>
+      <p class="sub" style="margin:2px 0 0">Tempel URL aplikasi web dari Apps Script (berakhiran <code>/exec</code>) dan kode rahasia yang sama dengan TOKEN di skrip. Disimpan di browser ini.</p></div>
+    <label class="f" style="flex:3 1 320px">URL aplikasi web<input type="text" id="gsUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+    <label class="f" style="flex:1 1 160px">Kode rahasia<input type="password" id="gsToken" autocomplete="off"></label>
+    <button id="btnGsTest">Tes koneksi</button>
+    <p class="gs-status" id="gsStatus" role="status"></p>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DEFAULT_OUTLETS=[["AMBASSADOR",34244925],["POINT SQUARE",36345400],["KUNCIT",46867640],["ATRIUM",51572980],["MAG",119328419],["MOI",37668036],["Rest Area 6B",0],["PESANGGRAHAN",0],["VETERAN",45512978],["REVO MALL",48876860],["KOTA WISATA CIBUBUR",83222320],["HERO LEBAK BULUS",35240200],["JOGLO TAMAN ALFA",37571440],["FOOD COURT BOTANI SQUARE",43946000],["FOOD EMPIRE PLUIT",58328200],["Lotte Mall Avenue",44664700],["FOOD COURT ARTHA",46030975],["Yogya Cimanggu Avenue",41734000],["Yogya Bogor Junction",27414000]];
+// Contoh: ekspor Runchise 1–19 Sep 2026 (header baris 10, data baris 11 dst.)
+const SAMPLE={title:"Ringkasan Penjualan_Bakmi Kelinci",period:"2026-09-01 00:00:00 - 2026-09-19 23:59:59",
+ header:["Lokasi","Jumlah Penjualan","Jumlah Pelanggan","Penjualan Kotor","Pengembalian Kotor","Diskon","Tambahan","Penjualan Bersih","Service Charge","Nilai Pajak","Biaya Tambahan","Pembulatan","Biaya Pengiriman","Total","Rata-rata Bersih","Subsidi Promo","Biaya Pembayaran","Bersih Diterima"],
+ rows:[["AMBASSADOR",285,0,20677500,0,1650,0,20675850,924950,2160080,0,-1780,0,23759100,72546.84,0,173070.8,23586029.2],["ATRIUM",160,0,24877500,0,0,0,24877500,1826600,2670410,0,0,0,29374510,155484.38,0,146399.95,29228110.05],["FOOD COURT ARTHA",188,0,14907500,0,0,0,14907500,639025,1554652.5,0,822.5,0,17102000,79295.21,0,99689.1,17002310.9],["FOOD COURT BOTANI SQUARE",349,0,30001500,0,0,0,30001500,0,3000150,0,50,0,33001700,85964.18,0,199207.8,32802492.2],["FOOD EMPIRE PLUIT",477,0,32804500,0,0,0,32804500,1385600,3419010,0,-2010,0,37607100,68772.54,0,209528.3,37397571.7],["HERO LEBAK BULUS",151,0,23761000,0,0,0,23761000,1464480,2522548,0,12,0,27748040,157357.62,0,363240.73,27384799.27],["JOGLO TAMAN ALFA",145,0,17878000,0,0,0,17878000,933200,1881120,0,0,0,20692320,123296.55,0,101281.53,20591038.47],["KOTA WISATA CIBUBUR",279,0,46835000,0,0,0,46835000,2589560,4942456,0,0,0,54367016,167867.38,0,858092.71,53508923.29],["KUNCIT",152,0,22986000,0,0,0,22986000,1626800,2461280,0,0,0,27074080,151223.68,0,170495.34,26903584.66],["Lotte Mall Avenue",134,0,12443000,0,0,0,12443000,543050,1298605,0,0,0,14284655,92858.21,0,87694.7,14196960.3],["MAG",347,0,63330000,0,518450,0,62811550,4477004,6728855.4,0,-0.4,0,74017409,181013.11,0,584388.12,73433020.89],["MOI",136,0,18537000,0,0,0,18537000,1212240,1974924,0,4,0,21724168,136301.47,0,141868.68,21582299.32],["POINT SQUARE",314,0,29019000,0,0,0,29019000,1228400,3024740,0,-340,0,33271800,92417.2,0,186639.3,33085160.7],["REVO MALL",173,0,26505000,0,297000,0,26208000,1911520,2811952,0,0,0,30931472,151491.33,0,174107.12,30757364.88],["VETERAN",108,0,24147000,0,0,0,24147000,1333040,2548004,0,0,0,28028044,223583.33,0,387628.56,27640415.44],["Yogya Bogor Junction",260,0,19629500,0,0,0,19629500,0,1962950,0,0,0,21592450,75498.08,0,142293.25,21450156.75],["Yogya Cimanggu Avenue",245,0,18546500,0,0,0,18546500,0,1854650,0,50,0,20401200,75700,0,107014.4,20294185.6]]};
+const BULAN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const KEY="shift1-pbjt-outlets";
+let outlets=load(); let src=SAMPLE;
+const $=id=>document.getElementById(id);
+const norm=s=>String(s||"").trim().replace(/^outlet\s+/i,"").replace(/\s+/g," ").toUpperCase();
+const rp=n=>n===""||n==null?"–":Math.round(n).toLocaleString("id-ID");
+const pc=n=>n===""||n==null?"–":Math.round(n*100)+"%";
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(v)&&v.length)return v}catch(e){}return DEFAULT_OUTLETS.map(a=>[...a])}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(outlets))}catch(e){}}
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
+
+function pbMap(){const m=new Map();const ti=src.header.findIndex(h=>norm(h)==="NILAI PAJAK");for(const r of src.rows){const k=norm(r[0]);if(k&&k!=="TOTAL")m.set(k,+r[ti>=0?ti:9]||0)}return m}
+function compute(){
+  const m=pbMap(), now=+$("dayNow").value||0, dm=+$("dayMonth").value||30, sisa=(dm-now)/dm;
+  const rows=outlets.map(([o,e],i)=>{const found=m.has(norm(o));const pb=found?m.get(norm(o)):0;const s=pb*10;
+    const k=e?e-s:"";const ratio=e?k/e:"";const sel=ratio===""?"":sisa-ratio;return{no:i+1,o,pb,s,e,k,ratio,sisa,sel,found}});
+  const T={s:0,pb:0,e:0,k:0};rows.forEach(r=>{T.s+=r.s;T.pb+=r.pb;T.e+=+r.e||0;T.k+=+r.k||0});
+  T.ratio=T.e?T.k/T.e:"";T.sisa=sisa;T.sel=T.ratio===""?"":sisa-T.ratio;
+  const known=new Set(outlets.map(o=>norm(o[0])));const extra=[...m.keys()].filter(k=>!known.has(k));
+  return{rows,T,extra,sisa,now,dm};
+}
+function render(){
+  const {rows,T,extra}=compute();
+  $("periodLabel").textContent=$("periodText").value;
+  $("tb").innerHTML=rows.map((r,i)=>`<tr>
+    <td class="c">${r.no}</td><td class="l">${esc(r.o)}${r.found?"":` <span class="miss" title="Tidak ada di ekspor Runchise">· tidak ada data</span>`}</td>
+    <td>${rp(r.s)}</td><td>${rp(r.pb)}</td>
+    <td><input class="om" id="om${i}" data-i="${i}" inputmode="numeric" value="${r.e?Math.round(r.e).toLocaleString("id-ID"):0}" aria-label="Omset bulan lalu ${esc(r.o)}"></td>
+    <td>${rp(r.k)}</td><td>${pc(r.ratio)}</td><td>${pc(r.sisa)}</td><td>${chip(r.sel)}</td>
+    <td><button class="del" data-del="${i}" aria-label="Hapus ${esc(r.o)}">✕</button></td></tr>`).join("");
+  $("tf").innerHTML=`<tr><td></td><td class="l">TOTAL</td><td>${rp(T.s)}</td><td>${rp(T.pb)}</td><td>${rp(T.e)}</td><td>${rp(T.k)}</td><td>${pc(T.ratio)}</td><td>${pc(T.sisa)}</td><td>${chip(T.sel)}</td><td></td></tr>`;
+  $("sShift").textContent=rp(T.s);$("sPrev").textContent=rp(T.e);$("sRatio").textContent=pc(T.ratio);
+  const valid=rows.filter(r=>r.sel!=="");$("sOn").textContent=`${valid.filter(r=>r.sel>=0).length} / ${valid.length}`;
+  const w=$("warn");
+  if(extra.length){w.hidden=false;w.innerHTML=`Outlet di ekspor Runchise yang belum ada di tabel: <b>${extra.map(esc).join(", ")}</b>. Tambahkan lewat kolom “Tambah outlet” bila perlu.`}else w.hidden=true;
+}
+function chip(v){if(v===""||v==null)return`<span class="chip na">–</span>`;return`<span class="chip ${v>=0?"good":"bad"}">${v>0?"+":""}${(v*100).toFixed(1).replace(".",",")}%</span>`}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+$("tb").addEventListener("change",e=>{const i=e.target.dataset.i;if(i==null)return;outlets[i][1]=+String(e.target.value).replace(/[^\d-]/g,"")||0;save();render()});
+$("tb").addEventListener("click",e=>{const i=e.target.dataset.del;if(i==null)return;outlets.splice(+i,1);save();render()});
+$("btnAdd").onclick=()=>{const v=$("newOutlet").value.trim();if(!v)return;outlets.push([v,0]);$("newOutlet").value="";save();render();toast("Outlet ditambahkan")};
+$("btnReset").onclick=()=>{outlets=DEFAULT_OUTLETS.map(a=>[...a]);save();render();toast("Daftar outlet dikembalikan")};
+["periodText","dayNow","dayMonth"].forEach(id=>$(id).addEventListener("input",render));
+
+// Upload
+const drop=$("drop"),fi=$("file");
+drop.onclick=()=>fi.click();drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fi.click()}};
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};drop.ondragleave=()=>drop.classList.remove("over");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");if(e.dataTransfer.files[0])readFile(e.dataTransfer.files[0])};
+fi.onchange=()=>{if(fi.files[0])readFile(fi.files[0]);fi.value=""};
+function cellVal(c){let v=c.value;if(v&&typeof v==="object"){if("result"in v)v=v.result;else if(v.richText)v=v.richText.map(t=>t.text).join("");else if(v instanceof Date)return v}return v}
+async function readFile(f){
+  try{
+    const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());const ws=wb.worksheets[0];
+    let hr=0,period="";ws.eachRow((row,n)=>{const a=String(cellVal(row.getCell(1))||"").trim();
+      if(!hr&&/^lokasi$/i.test(a)&&/penjualan/i.test(String(cellVal(row.getCell(2))||"")))hr=n;
+      if(/^periode$/i.test(a))period=String(cellVal(row.getCell(2))||"")});
+    if(!hr)throw new Error("Baris judul kolom “Lokasi / Jumlah Penjualan” tidak ditemukan. Pastikan file adalah ekspor Ringkasan Penjualan yang dikelompokkan per lokasi.");
+    const hRow=ws.getRow(hr);const header=[];for(let c=1;c<=hRow.cellCount;c++)header.push(String(cellVal(hRow.getCell(c))||""));
+    if(!header.some(h=>norm(h)==="NILAI PAJAK"))throw new Error("Kolom “Nilai Pajak” tidak ada di file ini.");
+    const rows=[];for(let r=hr+1;r<=ws.rowCount;r++){const row=ws.getRow(r);const a=cellVal(row.getCell(1));if(a==null||a==="")continue;
+      const arr=[];for(let c=1;c<=header.length;c++){const v=cellVal(row.getCell(c));arr.push(typeof v==="number"?v:(v==null?"":(isNaN(+v)||c===1?v:+v)))}rows.push(arr)}
+    src={title:String(cellVal(ws.getCell("A1"))||"Ringkasan Penjualan"),period,header,rows};
+    $("fileName").textContent=f.name;
+    const mt=period.match(/(\d{4})-(\d{2})-(\d{2}).*?(\d{4})-(\d{2})-(\d{2})/);
+    if(mt){const y=+mt[4],mo=+mt[5],d2=+mt[6],d1=+mt[3];const dm=new Date(y,mo,0).getDate();
+      $("dayNow").value=d2;$("dayMonth").value=dm;$("periodText").value=`Periode ${d1} - ${d2} ${BULAN[mo-1]} ${y}`}
+    render();toast("Data Runchise dimuat");
+  }catch(err){const w=$("warn");w.hidden=false;w.textContent="File tidak bisa dibaca: "+err.message}
+}
+
+// Copy (TSV untuk tempel ke Excel)
+$("btnCopy").onclick=async()=>{const {rows,T}=compute();const f=v=>v===""?"":v;
+  const lines=[["No","Outlet","Shift 1","Perkiraan PB 1","Omset Bulan Lalu","Kekurangan","Ratio","Sisa Target","Selisih"].join("\t")]
+   .concat(rows.map(r=>[r.no,r.o,r.s,r.pb,r.e,f(r.k),f(r.ratio),r.sisa,f(r.sel)].join("\t")))
+   .concat([["TOTAL","",T.s,T.pb,T.e,T.k,f(T.ratio),T.sisa,f(T.sel)].join("\t")]);
+  try{await navigator.clipboard.writeText(lines.join("\n"));toast("Tabel disalin — tempel di Excel")}catch(e){toast("Browser menolak menyalin")}};
+
+// Excel export dengan rumus
+$("btnXlsx").onclick=async()=>{
+  const {rows,T,now,dm,sisa}=compute();const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet("Shift 1",{views:[{state:"frozen",xSplit:2,ySplit:4}],pageSetup:{orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  const dr=wb.addWorksheet("Data Runchise");
+  const F={name:"Arial",size:11};const thin={style:"thin"},dbl={style:"double"};
+  const box={top:thin,left:thin,bottom:thin,right:thin},hb={top:dbl,left:thin,bottom:dbl,right:thin};
+  const fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFD9E1F2"}};
+  const NUM='#,##0;(#,##0);"-"',PCT='0%;-0%;"-"';
+  // Data Runchise
+  dr.getCell("A1").value=src.title;dr.getCell("A3").value="Periode";dr.getCell("B3").value=src.period;
+  src.header.forEach((h,i)=>{const c=dr.getCell(10,i+1);c.value=h;c.font={name:"Arial",size:10,bold:true}});
+  src.rows.forEach((r,ri)=>r.forEach((v,ci)=>{const c=dr.getCell(11+ri,ci+1);c.value=v;c.font={name:"Arial",size:10,bold:norm(r[0])==="TOTAL"};if(typeof v==="number")c.numFmt="#,##0"}));
+  dr.getColumn(1).width=28;for(let i=2;i<=src.header.length;i++)dr.getColumn(i).width=15;
+  // Shift 1
+  ws.mergeCells("A1:I1");ws.mergeCells("A2:I2");
+  ws.getCell("A1").value="Berdasarkan Shift";ws.getCell("A2").value=$("periodText").value;
+  ["A1","A2"].forEach(a=>{ws.getCell(a).font={...F,bold:true};ws.getCell(a).alignment={horizontal:"center"}});
+  ["No","Outlet","Shift 1","Perkiraan PB 1","Omset Bulan Lalu","Kekurangan","Ratio","Sisa Target","Selisih"].forEach((h,i)=>{
+    const c=ws.getCell(4,i+1);c.value=h;c.font={...F,bold:true};c.alignment={horizontal:"center",vertical:"middle"};c.border=hb;c.fill=fill});
+  const last=4+rows.length,tot=last+1,p=tot+2;const lastData=10+src.rows.length+20;
+  rows.forEach((x,i)=>{const r=5+i;
+    const v=[x.no,x.o,{formula:`D${r}*10`,result:x.s},{formula:`IFERROR(VLOOKUP(B${r},'Data Runchise'!$A$11:$R$${lastData},10,FALSE),0)`,result:x.pb},
+      Math.round(x.e)||0,{formula:`IF(E${r}=0,"",E${r}-C${r})`,result:x.k},{formula:`IF(E${r}=0,"",F${r}/E${r})`,result:x.ratio},
+      {formula:`($C$${p+1}-$C$${p})/$C$${p+1}`,result:x.sisa},{formula:`IF(G${r}="","",H${r}-G${r})`,result:x.sel}];
+    v.forEach((val,j)=>{const c=ws.getCell(r,j+1);c.value=val;c.border=box;c.font={...F};
+      if(j>=2&&j<=5)c.numFmt=NUM;if(j>=6)c.numFmt=PCT;if(j===0)c.alignment={horizontal:"center"}});
+    ws.getCell(r,5).font={...F,color:{argb:"FF0000FF"}}});
+  ws.mergeCells(`A${tot}:B${tot}`);ws.getCell(`A${tot}`).value="TOTAL";
+  const tv={C:T.s,D:T.pb,E:T.e,F:T.k};
+  for(const col of"CDEF"){ws.getCell(`${col}${tot}`).value={formula:`SUM(${col}5:${col}${last})`,result:tv[col]};ws.getCell(`${col}${tot}`).numFmt=NUM}
+  ws.getCell(`G${tot}`).value={formula:`IF(E${tot}=0,"",F${tot}/E${tot})`,result:T.ratio};
+  ws.getCell(`H${tot}`).value={formula:`H5`,result:sisa};ws.getCell(`I${tot}`).value={formula:`IF(G${tot}="","",H${tot}-G${tot})`,result:T.sel};
+  for(let j=1;j<=9;j++){const c=ws.getCell(tot,j);c.border=hb;c.font={...F,bold:true};c.fill=fill;if(j>=7)c.numFmt=PCT}
+  ws.getCell(`A${tot}`).alignment={horizontal:"center"};
+  const yel={type:"pattern",pattern:"solid",fgColor:{argb:"FFFFFF00"}};
+  [["Hari berjalan (s/d tanggal)",now],["Jumlah hari dalam bulan",dm]].forEach(([l,v],k)=>{
+    ws.getCell(`B${p+k}`).value=l;ws.getCell(`B${p+k}`).font={...F};const c=ws.getCell(`C${p+k}`);c.value=v;c.font={...F,color:{argb:"FF0000FF"}};c.fill=yel;c.border=box});
+  ["Keterangan:","• Perkiraan PB 1 = kolom \"Nilai Pajak\" dari sheet Data Runchise (ekspor Ringkasan Penjualan Runchise).","• Shift 1 = Perkiraan PB 1 × 10.",
+   "• Kekurangan = Omset Bulan Lalu − Shift 1;  Ratio = Kekurangan ÷ Omset Bulan Lalu.","• Sisa Target = (jumlah hari − hari berjalan) ÷ jumlah hari;  Selisih = Sisa Target − Ratio (positif = di atas jalur target).",
+   "• Isian manual (teks biru): Omset Bulan Lalu dan dua sel kuning di atas."].forEach((t,k)=>{const c=ws.getCell(`B${p+3+k}`);c.value=t;c.font={name:"Arial",size:10,bold:k===0,italic:k>0}});
+  [6,28.7,18,18,18,18,10,12,10].forEach((w,i)=>ws.getColumn(i+1).width=w);
+  const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  const d=$("periodText").value.replace(/^Periode\s*/i,"").replace(/\s+/g,"_");a.download=`Shift_1_Update_${d}.xlsx`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("Excel diunduh");
+};
+
+// ===== Google Sheet =====
+const GSKEY="shift1-pbjt-gs";
+(function(){try{const v=JSON.parse(localStorage.getItem(GSKEY)||"{}");$("gsUrl").value=v.url||"";$("gsToken").value=v.token||""}catch(e){}})();
+["gsUrl","gsToken"].forEach(id=>$(id).addEventListener("change",()=>{try{localStorage.setItem(GSKEY,JSON.stringify({url:$("gsUrl").value.trim(),token:$("gsToken").value}))}catch(e){}}));
+function gsStatus(t,cls){const el=$("gsStatus");el.textContent=t;el.className="gs-status "+(cls||"")}
+function gsUrlOk(){const u=$("gsUrl").value.trim();if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)){gsStatus("URL belum benar. Salin URL aplikasi web dari Apps Script (berakhiran /exec).","err");$("gsUrl").focus();return null}return u}
+$("btnGsTest").onclick=async()=>{const u=gsUrlOk();if(!u)return;gsStatus("Menghubungi…");
+  try{const r=await fetch(u);const j=await r.json();gsStatus(j.ok?"Terhubung: "+j.pesan:"Gagal: "+(j.error||"respon tidak dikenal"),j.ok?"ok":"err")}
+  catch(e){gsStatus("Tidak bisa terhubung. Pastikan deployment diatur ‘Siapa saja’ dan Anda sedang online.","err")}};
+$("btnGs").onclick=async()=>{
+  const u=gsUrlOk();if(!u){$("gsUrl").scrollIntoView({behavior:"smooth",block:"center"});return}
+  const {rows,now,dm}=compute();
+  const body=JSON.stringify({token:$("gsToken").value,periode:$("periodText").value.trim(),hariBerjalan:now,hariBulan:dm,
+    sumber:$("fileName").textContent,rows:rows.map(r=>({outlet:r.o,pb:r.pb,omsetLalu:Math.round(+r.e||0)}))});
+  const btn=$("btnGs");btn.disabled=true;gsStatus("Menyimpan ke Google Sheet…");
+  try{
+    const r=await fetch(u,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body});const j=await r.json();
+    if(j.ok){gsStatus(`Tersimpan: tab “${j.tab}” dan ${j.baris} baris di tab Riwayat.`,"ok");toast("Tersimpan ke Google Sheet")}
+    else gsStatus("Gagal: "+j.error,"err");
+  }catch(e){
+    // Cadangan: kirim tanpa membaca balasan. Aman diulang karena periode yang sama ditimpa.
+    try{await fetch(u,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body});
+      gsStatus("Data terkirim, tapi browser tidak bisa membaca konfirmasi. Cek Google Sheet Anda.","ok")}
+    catch(e2){gsStatus("Tidak bisa terhubung ke Google Sheet. Cek koneksi internet dan URL.","err")}
+  }finally{btn.disabled=false}
+};
+render();
+</script>
+</body>
+</html>
